@@ -1,0 +1,11 @@
+anthropic>=0.28.0
+fastapi>=0.111.0
+mangum>=0.17.0          # AWS Lambda ASGI adapter
+uvicorn[standard]>=0.29.0
+python-multipart>=0.0.9  # required for FastAPI file uploads
+pydantic>=2.7.0
+paddlepaddle==2.6.2
+paddleocr>=2.7,<3.0
+opencv-python-headless>=4.9.0  # headless: no GUI deps (suits Lambda/container)
+numpy<2.0
+python-dotenv>=1.0.0
