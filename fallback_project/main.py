@@ -12,6 +12,8 @@ from .analyzer import analyze_food_product
 from .models import AnalysisResponse, ErrorResponse, HealthResponse
 from .ocr import init_ocr_engine
 
+from dotenv import load_dotenv
+load_dotenv()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
