@@ -1,0 +1,22 @@
+CREATE TABLE IF NOT EXISTS nutrition_and_ingredients_tbl (
+    id          SERIAL PRIMARY KEY,
+    created_at  TIMESTAMP DEFAULT NOW(),
+    brand       TEXT,
+    product_name TEXT NOT NULL,
+    packaging_type TEXT,
+    preparation_state TEXT,
+    calories    NUMERIC,
+    total_fat_g NUMERIC,
+    saturated_fat_g NUMERIC,
+    trans_fat_g NUMERIC,
+    cholesterol_mg NUMERIC,
+    sodium_mg   NUMERIC,
+    total_carbohydrate_g NUMERIC,
+    dietary_fiber_g NUMERIC,
+    total_sugars_g NUMERIC,
+    added_sugars_g NUMERIC,
+    protein_g   NUMERIC,
+    ingredients_raw TEXT,
+    contains_allergens TEXT[],
+    may_contain_allergens TEXT[]
+);

@@ -4,12 +4,12 @@ FROM python:3.11-slim AS builder
 WORKDIR /build
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
-    gcc g++ libglib2.0-0 libgl1 \
+    gcc g++ libglib2.0-0 libgl1 libgomp1 libpq5\
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY requirements_with_db.txt .
 RUN pip install --upgrade pip \
-    && pip install --no-cache-dir --prefix=/install -r requirements.txt
+    && pip install --no-cache-dir --prefix=/install -r requirements_with_db.txt
 
 
 # ── Runtime stage ──────────────────────────────────────────────────────────────
@@ -19,15 +19,22 @@ WORKDIR /app
 
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libglib2.0-0 libgl1 libgomp1 \
+    postgresql postgresql-client \
+    # Supervisor to manage multiple processes
+    supervisor \
     && rm -rf /var/lib/apt/lists/*
 
 COPY --from=builder /install /usr/local
 COPY fallback_project/ ./fallback_project/
+COPY postgres_client.py ./fallback_project/postgres_client.py
+COPY main_with_db.py ./fallback_project/main_with_db.py
+COPY init.sql ./init.sql
+
 COPY .env ./.env
+COPY entrypoint_with_db.sh ./entrypoint_with_db.sh
 
-RUN printf '#!/bin/sh\necho "Warming up PaddleOCR..."\npython -c "from paddleocr import PaddleOCR; PaddleOCR(use_angle_cls=False, use_mkldnn=False, lang='\''en'\'', show_log=False)"\necho "Starting server..."\nexec uvicorn fallback_project.main:app --host 0.0.0.0 --port 8080\n' > /app/entrypoint.sh \
-    && chmod +x /app/entrypoint.sh
+RUN sed -i 's/\r//' /app/entrypoint_with_db.sh && chmod +x /app/entrypoint_with_db.sh
+EXPOSE 8080 5432
 
-EXPOSE 8080
-
-CMD ["/app/entrypoint.sh"]
+# cntrypoint_with_db will create the supervisord.conf within the container
+CMD ["/app/entrypoint_with_db.sh"]
